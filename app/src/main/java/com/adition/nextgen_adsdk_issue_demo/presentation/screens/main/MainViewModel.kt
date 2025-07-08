@@ -14,10 +14,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class MainViewModel : ViewModel() {
-
     private val _state = MutableStateFlow<PresentationState>(PresentationState.Loading)
     val state: StateFlow<PresentationState> = _state
-
     val trackingResult = MutableStateFlow<TrackingResult?>(null)
 
     fun onLoad() {
@@ -57,7 +55,6 @@ class MainViewModel : ViewModel() {
                     }
                 )
         }
-
     }
 
     fun trackingRequest() {

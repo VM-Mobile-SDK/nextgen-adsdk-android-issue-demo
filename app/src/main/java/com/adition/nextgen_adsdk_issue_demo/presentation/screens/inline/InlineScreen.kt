@@ -19,9 +19,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.adition.nextgen_adsdk_issue_demo.presentation.screens.inline.ad_cell.AdCell
 
 @Composable
-fun InlineView(
-    viewModel: InlineViewModel = viewModel()
-) {
+fun InlineView(viewModel: InlineViewModel = viewModel()) {
     val state by viewModel.state.collectAsState()
 
     LaunchedEffect(Unit) {

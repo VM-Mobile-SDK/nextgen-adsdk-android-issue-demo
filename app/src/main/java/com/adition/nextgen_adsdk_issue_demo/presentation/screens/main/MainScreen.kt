@@ -1,6 +1,5 @@
 package com.adition.nextgen_adsdk_issue_demo.presentation.screens.main
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,19 +22,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import com.adition.nextgen_adsdk_issue_demo.presentation.screens.inline.InlineView
-import com.adition.nextgen_adsdk_issue_demo.presentation.screens.inline.InlineViewModel
-import com.adition.sdk_core.api.core.AdService
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 
 @Composable
 fun MainScreen(
     viewModel: MainViewModel = viewModel(),
-    navController: NavHostController
+    navController: NavHostController,
 ) {
     val uiState by viewModel.state.collectAsState()
     val trackingResult by viewModel.trackingResult.collectAsState()
@@ -59,7 +52,7 @@ fun MainScreen(
 
         is MainViewModel.PresentationState.Error -> {
             val error = (uiState as MainViewModel.PresentationState.Error).adError
-            Text(text = error.description ?: "Unknown error", color = Color.Red)
+            Text(text = error.description, color = Color.Red)
         }
 
         is MainViewModel.PresentationState.Loaded -> {
@@ -88,11 +81,10 @@ fun MainScreen(
     }
 }
 
-@SuppressLint("ViewModelConstructorInComposable")
 @Composable
 fun LoadedContent(
     viewModel: MainViewModel,
-    navController: NavHostController
+    navController: NavHostController,
 ) {
 
     Column(

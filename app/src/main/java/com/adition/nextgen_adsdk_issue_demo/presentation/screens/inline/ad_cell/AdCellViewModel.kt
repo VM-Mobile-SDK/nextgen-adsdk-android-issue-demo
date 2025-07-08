@@ -55,7 +55,6 @@ class AdCellViewModel(
         }
     }
 
-    // MARK: - Private Methods
     private suspend fun loadAdvertisement() {
         _state.value = PresentationState.Loading
         try {
@@ -81,19 +80,15 @@ class AdCellViewModel(
         }
     }
 
-    // MARK: - Static Properties
     private object C {
         const val defaultAspectRatio = 2.0
     }
 
-    // MARK: - Extensions
-    // Inline Ad Data Structure
     data class InlineAdData(
         val advertisement: Advertisement,
         val aspectRatio: Float
     )
 
-    // Presentation States (Loading, Error, Loaded)
     sealed class PresentationState {
         object Loading : PresentationState()
         data class Error(val error: Throwable) : PresentationState()

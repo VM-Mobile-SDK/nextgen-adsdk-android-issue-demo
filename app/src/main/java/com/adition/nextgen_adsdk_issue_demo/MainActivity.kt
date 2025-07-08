@@ -28,10 +28,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         ContextProvider.setContext(this)
+
         setContent {
             NextgenadsdkissuedemoTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    MyApp(Modifier.padding(innerPadding))
+                    Navigation(Modifier.padding(innerPadding))
                 }
             }
         }
@@ -39,17 +40,17 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MyApp(modifier: Modifier) {
+fun Navigation(modifier: Modifier) {
     val navController = rememberNavController()
 
     MaterialTheme {
-        NavHost(navController = navController, startDestination = "main") {
+        NavHost(navController = navController, startDestination = "main", modifier = modifier) {
             composable("main") {
                 val viewModel: MainViewModel = viewModel()
                 MainScreen(viewModel,navController)
             }
             composable("inline") {
-                val viewModel: InlineViewModel = viewModel(navController.currentBackStackEntry!!)
+                val viewModel: InlineViewModel = viewModel()
                 InlineView(viewModel)
             }
             composable("interstitial") {

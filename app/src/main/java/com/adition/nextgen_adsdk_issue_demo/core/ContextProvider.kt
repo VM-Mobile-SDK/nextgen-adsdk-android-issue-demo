@@ -9,8 +9,6 @@ object ContextProvider {
     @Volatile
     lateinit var appContext: Context
 
-    var isStoreVersion: Boolean = false
-
     fun setContext(context: Context) {
         appContext = context
     }

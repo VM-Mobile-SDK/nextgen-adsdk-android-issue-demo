@@ -13,26 +13,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.adition.nextgen_adsdk_issue_demo.core.AdConfiguration
-import com.adition.sdk_core.api.core.Advertisement
-import com.adition.sdk_core.api.entities.AdInterstitialState
 import com.adition.sdk_presentation_compose.api.Interstitial
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
 fun InterstitialScreen(viewModel: InterstitialViewModel = viewModel()) {
     val state by viewModel.state.collectAsState()
-    val interstitialState by viewModel.interstitialState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
-
 
     LaunchedEffect(Unit) {
         viewModel.onLoad()
@@ -51,6 +44,7 @@ fun InterstitialScreen(viewModel: InterstitialViewModel = viewModel()) {
         }
 
         is InterstitialViewModel.PresentationState.Loaded -> {
+            val loadedState = state as InterstitialViewModel.PresentationState.Loaded
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -58,14 +52,9 @@ fun InterstitialScreen(viewModel: InterstitialViewModel = viewModel()) {
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                if (viewModel.isLoaded) {
-                    val ad = viewModel.advertisement
-                    if (ad != null) {
-                        val adInterstitialState = remember(ad) { AdInterstitialState(ad, coroutineScope) }
-                        LaunchedEffect(adInterstitialState) {
-                            adInterstitialState.presentIfLoaded()
-                        }
-                        Interstitial(adInterstitialState)
+                if (loadedState.advertisement != null) {
+                    Button(onClick = { viewModel.presentAd() }) {
+                        Text("Show Advertisement")
                     }
                 } else {
                     Button(onClick = {
@@ -77,15 +66,15 @@ fun InterstitialScreen(viewModel: InterstitialViewModel = viewModel()) {
                     }
                 }
             }
+        }
 
-            // Optional: Do something based on interstitialState
-            when (interstitialState) {
-                InterstitialViewModel.InterstitialState.Presented -> {
-                    // Show the ad or a dialog/overlay
+        is InterstitialViewModel.PresentationState.Presented -> {
+            val adInterstitialState = viewModel.getAdInterstitialState()
+            if (adInterstitialState != null) {
+                LaunchedEffect(adInterstitialState) {
+                    adInterstitialState.presentIfLoaded()
                 }
-                InterstitialViewModel.InterstitialState.Hidden -> {
-                    // No ad shown
-                }
+                Interstitial(adInterstitialState)
             }
         }
 
@@ -102,9 +91,3 @@ fun InterstitialScreen(viewModel: InterstitialViewModel = viewModel()) {
         }
     }
 }
-
-@Composable
-private fun rememberInterstitialState(
-    advertisement: Advertisement,
-    scope: CoroutineScope = rememberCoroutineScope()
-) = remember { AdInterstitialState(advertisement, scope) }

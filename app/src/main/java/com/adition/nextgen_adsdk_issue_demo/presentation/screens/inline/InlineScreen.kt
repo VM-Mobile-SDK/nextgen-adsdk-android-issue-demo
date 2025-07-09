@@ -26,7 +26,7 @@ fun InlineView(viewModel: InlineViewModel = viewModel()) {
         viewModel.onLoad()
     }
 
-    when (state) {
+    when (val presentationState = state) {
         is InlineViewModel.PresentationState.Loading -> {
             Box(
                 modifier = Modifier
@@ -39,7 +39,7 @@ fun InlineView(viewModel: InlineViewModel = viewModel()) {
         }
 
         is InlineViewModel.PresentationState.Loaded -> {
-            val dataSource = (state as InlineViewModel.PresentationState.Loaded).items
+            val dataSource = presentationState.items
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -51,7 +51,7 @@ fun InlineView(viewModel: InlineViewModel = viewModel()) {
         }
 
         is InlineViewModel.PresentationState.Error -> {
-            val error = (state as InlineViewModel.PresentationState.Error).error
+            val error = presentationState.error
             Text(
                 text = error.description,
                 color = Color.Red,

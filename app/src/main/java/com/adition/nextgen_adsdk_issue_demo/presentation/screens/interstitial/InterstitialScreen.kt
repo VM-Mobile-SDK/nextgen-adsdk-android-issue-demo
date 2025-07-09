@@ -13,25 +13,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.adition.sdk_presentation_compose.api.Interstitial
-import kotlinx.coroutines.launch
 
 @Composable
 fun InterstitialScreen(viewModel: InterstitialViewModel = viewModel()) {
     val state by viewModel.state.collectAsState()
-    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         viewModel.onLoad()
     }
 
-    when (state) {
+    when (val presentationState = state) {
         is InterstitialViewModel.PresentationState.Loading -> {
             Box(
                 modifier = Modifier
@@ -44,7 +41,6 @@ fun InterstitialScreen(viewModel: InterstitialViewModel = viewModel()) {
         }
 
         is InterstitialViewModel.PresentationState.Loaded -> {
-            val loadedState = state as InterstitialViewModel.PresentationState.Loaded
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -52,29 +48,19 @@ fun InterstitialScreen(viewModel: InterstitialViewModel = viewModel()) {
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                if (loadedState.advertisement != null) {
+                if (presentationState.advertisement != null) {
                     Button(onClick = { viewModel.presentAd() }) {
                         Text("Show Advertisement")
                     }
                 } else {
-                    Button(onClick = {
-                        coroutineScope.launch {
-                            viewModel.onLoadAdvertisement()
+                    val adInterstitialState = viewModel.adInterstitialState
+                    if (adInterstitialState != null) {
+                        LaunchedEffect(adInterstitialState) {
+                            adInterstitialState.presentIfLoaded()
                         }
-                    }) {
-                        Text("Load Advertisement")
+                        Interstitial(adInterstitialState)
                     }
                 }
-            }
-        }
-
-        is InterstitialViewModel.PresentationState.Presented -> {
-            val adInterstitialState = viewModel.getAdInterstitialState()
-            if (adInterstitialState != null) {
-                LaunchedEffect(adInterstitialState) {
-                    adInterstitialState.presentIfLoaded()
-                }
-                Interstitial(adInterstitialState)
             }
         }
 

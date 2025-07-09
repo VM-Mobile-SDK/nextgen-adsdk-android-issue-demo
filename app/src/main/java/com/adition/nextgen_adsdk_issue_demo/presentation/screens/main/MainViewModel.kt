@@ -10,27 +10,26 @@ import com.adition.sdk_core.api.entities.request.AdRequestGlobalParameters
 import com.adition.sdk_core.api.entities.request.TrackingGlobalParameters
 import com.adition.sdk_presentation_compose.api.configure
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class MainViewModel : ViewModel() {
     private val _state = MutableStateFlow<PresentationState>(PresentationState.Loading)
-    val state: StateFlow<PresentationState> = _state
+    val state = _state.asStateFlow()
     val trackingResult = MutableStateFlow<TrackingResult?>(null)
 
     fun onLoad() {
         viewModelScope.launch {
             val adServiceResult = AdService.configure(
-                networkId = AdConfiguration.networkID,
-                cacheSizeInMb = AdConfiguration.cacheSize,
+                networkId = AdConfiguration.NETWORK_ID,
+                cacheSizeInMb = AdConfiguration.CACHE_SIZE.toUShort(),
                 context = ContextProvider.appContext,
             )
 
-            setAdRequestGlobalParameters()
-            setTrackingGlobalParameters()
-
             adServiceResult.get(
                 onSuccess = { _ ->
+                    setAdRequestGlobalParameters()
+                    setTrackingGlobalParameters()
                     _state.value = PresentationState.Loaded
                 },
                 onError = { error ->
@@ -95,6 +94,14 @@ class MainViewModel : ViewModel() {
             parameters.isSHBEnabled
         )
         AdService.setAdRequestGlobalParameter(AdRequestGlobalParameters::dsa, parameters.dsa)
+        AdService.setAdRequestGlobalParameter(
+            AdRequestGlobalParameters::isIpIdentified,
+            parameters.isIpIdentified
+        )
+        AdService.setAdRequestGlobalParameter(
+            AdRequestGlobalParameters::cookiesAccess,
+            parameters.cookiesAccess
+        )
     }
 
     private fun setTrackingGlobalParameters() {

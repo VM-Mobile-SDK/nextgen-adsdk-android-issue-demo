@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.*
 
 class InlineViewModel: ViewModel() {
     private val _state = MutableStateFlow<PresentationState>(PresentationState.Loading)
-    val state: StateFlow<PresentationState> = _state.asStateFlow()
+    val state = _state.asStateFlow()
 
     fun onLoad() {
         viewModelScope.launch {
@@ -24,14 +24,11 @@ class InlineViewModel: ViewModel() {
     private suspend fun getDataSource(
         requests: List<AdRequest>,
     ): List<AdCellViewModel> = coroutineScope {
-        requests.mapIndexed { i, request ->
-            async {
+        requests.mapIndexed { _ , request ->
                 AdCellViewModel(
-                    id = i,
                     request = request,
                 )
-            }
-        }.awaitAll().sortedBy { it.id }
+        }
     }
 
     sealed class PresentationState {

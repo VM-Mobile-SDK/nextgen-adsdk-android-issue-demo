@@ -6,12 +6,12 @@ plugins {
 
 android {
     namespace = "com.adition.nextgen_adsdk_issue_demo"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.adition.nextgen_adsdk_issue_demo"
         minSdk = 24
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 

@@ -12,25 +12,26 @@ import com.adition.sdk_core.api.entities.response.AdMetadata
 import com.adition.sdk_core.api.services.event_listener.AdEventListener
 import com.adition.sdk_core.api.services.event_listener.AdEventType
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class InterstitialViewModel: ViewModel() {
+class InterstitialViewModel : ViewModel() {
     private val _state = MutableStateFlow<PresentationState>(PresentationState.Loading)
-    val state: StateFlow<PresentationState> get() = _state
-    private var adInterstitialState: AdInterstitialState? = null
+    val state = _state.asStateFlow()
+    internal var adInterstitialState: AdInterstitialState? = null
 
     fun onLoad() {
-        viewModelScope.launch {
-            if ((_state.value as? PresentationState.Loaded)?.advertisement != null || !AdConfiguration.Ad.isPreloadingContent) {
-                _state.value = PresentationState.Loaded(advertisement = (_state.value as? PresentationState.Loaded)?.advertisement)
-                return@launch
-            }
-            onLoadAdvertisement()
+        if (!AdConfiguration.Ad.IS_PRELOADING_CONTENT)
+            return
+        val loadedAd = (_state.value as? PresentationState.Loaded)?.advertisement
+        if (loadedAd != null) {
+            _state.value = PresentationState.Loaded(loadedAd)
+            return
         }
+        onLoadAdvertisement()
     }
 
-    suspend fun onLoadAdvertisement() {
+    private fun onLoadAdvertisement() {
         val request = AdConfiguration.Ad.interstitialRequest ?: return
 
         _state.value = PresentationState.Loading
@@ -40,29 +41,30 @@ class InterstitialViewModel: ViewModel() {
                 if (adEventType == AdEventType.UnloadRequest) {
                     adInterstitialState?.hide()
                     viewModelScope.launch {
-                        val ad = (_state.value as? PresentationState.Presented)?.advertisement
-                            ?: (_state.value as? PresentationState.Loaded)?.advertisement
+                        val ad = (_state.value as? PresentationState.Loaded)?.advertisement
                         _state.value = PresentationState.Loaded(ad)
                     }
                 }
             }
         }
 
-        val advertisementResult = AdService.makeAdvertisement(
-            adRequest = request,
-            placementType = AdPlacementType.INTERSTITIAL,
-            adEventListener = adEventListener
-        )
+        viewModelScope.launch {
+            val advertisementResult = AdService.makeAdvertisement(
+                adRequest = request,
+                placementType = AdPlacementType.INTERSTITIAL,
+                adEventListener = adEventListener
+            )
 
-        advertisementResult.get(
-            onSuccess = { ad ->
-                adInterstitialState = AdInterstitialState(ad, viewModelScope)
-                _state.value = PresentationState.Loaded(advertisement = ad)
-            },
-            onError = { error ->
-                _state.value = PresentationState.Error(error)
-            }
-        )
+            advertisementResult.get(
+                onSuccess = { ad ->
+                    adInterstitialState = AdInterstitialState(ad, viewModelScope)
+                    _state.value = PresentationState.Loaded(advertisement = ad)
+                },
+                onError = { error ->
+                    _state.value = PresentationState.Error(error)
+                }
+            )
+        }
     }
 
     fun presentAd() {
@@ -73,19 +75,14 @@ class InterstitialViewModel: ViewModel() {
                     adInterstitialState = AdInterstitialState(advertisement, viewModelScope)
                 }
                 adInterstitialState?.presentIfLoaded()
-                _state.value = PresentationState.Presented(advertisement)
+                _state.value = PresentationState.Loaded(advertisement)
             }
         }
-    }
-
-    fun getAdInterstitialState(): AdInterstitialState? {
-        return adInterstitialState
     }
 
     sealed class PresentationState {
         data object Loading : PresentationState()
         data class Loaded(val advertisement: Advertisement?) : PresentationState()
         data class Error(val error: AdError) : PresentationState()
-        data class Presented(val advertisement: Advertisement) : PresentationState()
     }
 }

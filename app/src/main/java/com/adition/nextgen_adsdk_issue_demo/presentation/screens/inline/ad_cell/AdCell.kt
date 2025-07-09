@@ -29,9 +29,9 @@ fun AdCell(viewModel: AdCellViewModel = viewModel()) {
 
     Box(modifier = Modifier
         .fillMaxWidth()
-        .height(DEFAULT_HEIGHT.dp)) {
+        .height(AdCellConstant.DEFAULT_HEIGHT.dp)) {
 
-        when (state) {
+        when (val presentationState = state) {
             is AdCellViewModel.PresentationState.Loading -> {
                 Box(
                     modifier = Modifier
@@ -44,16 +44,16 @@ fun AdCell(viewModel: AdCellViewModel = viewModel()) {
             }
 
             is AdCellViewModel.PresentationState.Loaded -> {
-                val data = (state as AdCellViewModel.PresentationState.Loaded).inlineAdData
+                val data = presentationState.inlineAdData
                 Ad(advertisement = data.advertisement,
                     Modifier.aspectRatio(data.aspectRatio))
 
             }
 
             is AdCellViewModel.PresentationState.Error -> {
-                val error = (state as AdCellViewModel.PresentationState.Error).error
+                val error = presentationState.error
                 Text(
-                    text = error.message ?: "Unknown error",
+                    text = error.description,
                     color = Color.Red,
                     modifier = Modifier.fillMaxSize(),
                     textAlign = TextAlign.Center
@@ -62,22 +62,15 @@ fun AdCell(viewModel: AdCellViewModel = viewModel()) {
         }
     }
 
-
-    val lifecycleOwner = LocalLifecycleOwner.current
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            when (event) {
-                Lifecycle.Event.ON_RESUME -> viewModel.onAppear()
-                Lifecycle.Event.ON_PAUSE -> viewModel.onDisappear()
-                else -> {}
-            }
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
+    DisposableEffect(Unit) {
+        viewModel.onAppear()
 
         onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
+            viewModel.onDisappear()
         }
     }
 }
 
-private val DEFAULT_HEIGHT = 200
+private object AdCellConstant {
+    const val DEFAULT_HEIGHT = 200
+}

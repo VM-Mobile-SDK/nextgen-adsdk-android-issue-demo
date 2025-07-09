@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.adition.nextgen_adsdk_issue_demo.Screen
 
 @Composable
 fun MainScreen(
@@ -99,13 +100,13 @@ fun LoadedContent(
         val uiState by viewModel.state.collectAsState()
 
         if (uiState.isInlineButtonShown) {
-            Button(onClick = { navController.navigate("inline") }) {
+            Button(onClick = { navController.navigate(Screen.Inline.route) }) {
                 Text("Show Inline View")
             }
         }
 
         if (uiState.isInterstitialButtonShown) {
-            Button(onClick = { navController.navigate("interstitial") }) {
+            Button(onClick = { navController.navigate(Screen.Interstitial.route) }) {
                 Text("Show Interstitial View")
             }
         }

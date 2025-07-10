@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 class InterstitialViewModel : ViewModel() {
     private val _state = MutableStateFlow<PresentationState>(PresentationState.Loading)
     val state = _state.asStateFlow()
-    internal var adInterstitialState: AdInterstitialState? = null
+    var adInterstitialState: AdInterstitialState? = null
 
     fun onLoad() {
         if (!AdConfiguration.Ad.IS_PRELOADING_CONTENT)

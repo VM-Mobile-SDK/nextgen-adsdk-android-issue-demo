@@ -125,12 +125,12 @@ class MainViewModel : ViewModel() {
 
         val message: String
             get() = when (this) {
-                is Success -> "${type.name} processed successfully."
-                is Failure -> "${type.name} failed with error: $error"
+                is Success -> "${type.trackingTypeName} processed successfully."
+                is Failure -> "${type.trackingTypeName} failed with error: $error"
             }
     }
 
-    enum class TrackingType(val type: String) {
+    enum class TrackingType(val trackingTypeName: String) {
         TAG_REQUEST("Tag Request"),
         TRACKING_REQUEST("Tracking Request")
     }

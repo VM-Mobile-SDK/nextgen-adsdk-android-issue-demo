@@ -44,7 +44,7 @@ fun MainScreen(
         isTrackingAlertPresented = trackingResult != null
     }
 
-    when (uiState) {
+    when (val state = uiState) {
         is MainViewModel.PresentationState.Loading -> {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
@@ -52,15 +52,12 @@ fun MainScreen(
         }
 
         is MainViewModel.PresentationState.Error -> {
-            val error = (uiState as MainViewModel.PresentationState.Error).adError
+            val error = state.adError
             Text(text = error.description, color = Color.Red)
         }
 
         is MainViewModel.PresentationState.Loaded -> {
-            LoadedContent(
-                viewModel,
-                navController
-            )
+            LoadedContent(viewModel, navController)
         }
     }
 

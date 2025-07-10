@@ -29,7 +29,7 @@ class AdCellViewModel(private val request: AdRequest) : ViewModel() {
     }
 
     fun onAppear() {
-        if (!isLoaded) {
+        if (!isLoaded || loadingJob?.isActive == false) {
             loadAdvertisement()
         }
     }
@@ -54,7 +54,7 @@ class AdCellViewModel(private val request: AdRequest) : ViewModel() {
                     this@AdCellViewModel.advertisement = ad
                     val inlineAdData = InlineAdData(
                         advertisement = ad,
-                        aspectRatio = (ad.adMetadata?.aspectRatio ?: DEFAULT_ASPECT_RATIO) as Float
+                        aspectRatio = ad.adMetadata?.aspectRatio ?: DEFAULT_ASPECT_RATIO
                     )
                     _state.value = PresentationState.Loaded(inlineAdData)
                 },
@@ -66,7 +66,7 @@ class AdCellViewModel(private val request: AdRequest) : ViewModel() {
     }
 
     companion object {
-        const val DEFAULT_ASPECT_RATIO = 2.0
+        const val DEFAULT_ASPECT_RATIO = 2.0f
     }
 
     data class InlineAdData(

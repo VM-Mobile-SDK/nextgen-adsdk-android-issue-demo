@@ -23,7 +23,7 @@ class AdCellViewModel(private val request: AdRequest) : ViewModel() {
 
     private var loadingJob: Job? = null
 
-    suspend fun preLoadIfNeeded() {
+    suspend fun preloadIfNeeded() {
         if (!AdConfiguration.Ad.IS_PRELOADING_CONTENT) return
 
         loadAdvertisement()

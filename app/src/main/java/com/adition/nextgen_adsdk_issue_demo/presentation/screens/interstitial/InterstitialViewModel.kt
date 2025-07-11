@@ -25,7 +25,7 @@ class InterstitialViewModel : ViewModel() {
             return
         }
         if (adInterstitialState != null) {
-            _state.value = PresentationState.Loaded(null)
+            _state.value = PresentationState.Loaded(adInterstitialState)
             return
         }
 

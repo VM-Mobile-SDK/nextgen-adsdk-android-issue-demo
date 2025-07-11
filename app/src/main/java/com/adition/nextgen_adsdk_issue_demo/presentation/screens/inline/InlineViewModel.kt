@@ -32,7 +32,7 @@ class InlineViewModel : ViewModel() {
             .map { request ->
                 async {
                     val cell = AdCellViewModel(request)
-                    cell.preLoadIfNeeded()
+                    cell.preloadIfNeeded()
                     return@async cell
                 }
             }

@@ -8,14 +8,14 @@ import com.adition.sdk_core.api.entities.request.TrackingGlobalParameters
 import com.adition.sdk_core.api.entities.request.TrackingRequest
 
 object AdConfiguration {
-    const val NETWORK_ID = "1800"
-    const val CACHE_SIZE = 10u
+    const val NETWORK_ID = "0000"
+    const val CACHE_SIZE = 100u
 
     object Ad {
         const val IS_PRELOADING_CONTENT = true
 
-        val inlineRequests: List<AdRequest>? = listOf(AdRequest("4810915"))
-        val interstitialRequest: AdRequest? = AdRequest("5192923")
+        val inlineRequests: List<AdRequest>? = null
+        val interstitialRequest: AdRequest? = null
 
         val globalParameters = AdRequestGlobalParameters().apply {
             gdpr = null

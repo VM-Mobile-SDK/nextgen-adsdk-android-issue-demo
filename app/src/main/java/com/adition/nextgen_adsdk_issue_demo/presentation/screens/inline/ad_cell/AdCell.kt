@@ -17,19 +17,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.compose.LocalLifecycleOwner
-import com.adition.sdk_presentation_compose.api.Ad
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.adition.sdk_presentation_compose.api.Ad
 
 @Composable
 fun AdCell(viewModel: AdCellViewModel = viewModel()) {
     val state by viewModel.state.collectAsState()
 
-    Box(modifier = Modifier
-        .fillMaxWidth()
-        .height(AdCellConstant.DEFAULT_HEIGHT.dp)) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(AdCellConstant.DEFAULT_HEIGHT.dp)
+    ) {
 
         when (val presentationState = state) {
             is AdCellViewModel.PresentationState.Loading -> {
@@ -45,8 +44,10 @@ fun AdCell(viewModel: AdCellViewModel = viewModel()) {
 
             is AdCellViewModel.PresentationState.Loaded -> {
                 val data = presentationState.inlineAdData
-                Ad(advertisement = data.advertisement,
-                    Modifier.aspectRatio(data.aspectRatio))
+                Ad(
+                    advertisement = data.advertisement,
+                    Modifier.aspectRatio(data.aspectRatio)
+                )
 
             }
 

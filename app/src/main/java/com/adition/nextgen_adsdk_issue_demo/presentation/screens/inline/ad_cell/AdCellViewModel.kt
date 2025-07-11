@@ -23,46 +23,49 @@ class AdCellViewModel(private val request: AdRequest) : ViewModel() {
 
     private var loadingJob: Job? = null
 
-    init {
-        if (AdConfiguration.Ad.IS_PRELOADING_CONTENT)
-            loadAdvertisement()
+    suspend fun preLoadIfNeeded() {
+        if (!AdConfiguration.Ad.IS_PRELOADING_CONTENT) return
+
+        loadAdvertisement()
     }
 
     fun onAppear() {
-        if (!isLoaded || loadingJob?.isActive == false) {
-            loadAdvertisement()
+        if (!AdConfiguration.Ad.IS_PRELOADING_CONTENT && !isLoaded) {
+            loadingJob = viewModelScope.launch {
+                loadAdvertisement()
+            }
         }
     }
 
     fun onDisappear() {
         if (!AdConfiguration.Ad.IS_PRELOADING_CONTENT) {
+            loadingJob?.cancel()
+            loadingJob = null
             _state.value = PresentationState.Loading
             advertisement = null
         }
     }
 
-    private fun loadAdvertisement() {
+    private suspend fun loadAdvertisement() {
         if (loadingJob?.isActive == true) return
 
-        loadingJob = viewModelScope.launch {
-            _state.value = PresentationState.Loading
+        _state.value = PresentationState.Loading
 
-            val advertisement = AdService.makeAdvertisement(request, AdPlacementType.INLINE)
+        val advertisement = AdService.makeAdvertisement(request, AdPlacementType.INLINE)
 
-            advertisement.get(
-                onSuccess = { ad ->
-                    this@AdCellViewModel.advertisement = ad
-                    val inlineAdData = InlineAdData(
-                        advertisement = ad,
-                        aspectRatio = ad.adMetadata?.aspectRatio ?: DEFAULT_ASPECT_RATIO
-                    )
-                    _state.value = PresentationState.Loaded(inlineAdData)
-                },
-                onError = { error ->
-                    _state.value = PresentationState.Error(error)
-                }
-            )
-        }
+        advertisement.get(
+            onSuccess = { ad ->
+                this@AdCellViewModel.advertisement = ad
+                val inlineAdData = InlineAdData(
+                    advertisement = ad,
+                    aspectRatio = ad.adMetadata?.aspectRatio ?: DEFAULT_ASPECT_RATIO
+                )
+                _state.value = PresentationState.Loaded(inlineAdData)
+            },
+            onError = { error ->
+                _state.value = PresentationState.Error(error)
+            }
+        )
     }
 
     companion object {

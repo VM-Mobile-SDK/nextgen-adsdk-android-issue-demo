@@ -6,10 +6,14 @@ import com.adition.nextgen_adsdk_issue_demo.core.AdConfiguration
 import com.adition.nextgen_adsdk_issue_demo.presentation.screens.inline.ad_cell.AdCellViewModel
 import com.adition.sdk_core.api.entities.exception.AdError
 import com.adition.sdk_core.api.entities.request.AdRequest
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
-class InlineViewModel: ViewModel() {
+class InlineViewModel : ViewModel() {
     private val _state = MutableStateFlow<PresentationState>(PresentationState.Loading)
     val state = _state.asStateFlow()
 
@@ -24,11 +28,15 @@ class InlineViewModel: ViewModel() {
     private suspend fun getDataSource(
         requests: List<AdRequest>,
     ): List<AdCellViewModel> = coroutineScope {
-        requests.mapIndexed { _ , request ->
-                AdCellViewModel(
-                    request = request,
-                )
-        }
+        requests
+            .map { request ->
+                async {
+                    val cell = AdCellViewModel(request)
+                    cell.preLoadIfNeeded()
+                    return@async cell
+                }
+            }
+            .awaitAll()
     }
 
     sealed class PresentationState {

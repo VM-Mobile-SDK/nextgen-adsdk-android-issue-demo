@@ -1,11 +1,8 @@
 package com.adition.nextgen_adsdk_issue_demo.presentation.screens.interstitial
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
@@ -16,7 +13,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.adition.sdk_presentation_compose.api.Interstitial
 
@@ -41,31 +37,28 @@ fun InterstitialScreen(viewModel: InterstitialViewModel = viewModel()) {
         }
 
         is InterstitialViewModel.PresentationState.Loaded -> {
-            Column(
+            val interstitialState = presentationState.adInterstitialState
+            Box(
+                contentAlignment = Alignment.Center,
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                if (presentationState.advertisement != null) {
+                if (interstitialState != null) {
                     Button(onClick = { viewModel.presentAd() }) {
                         Text("Show Advertisement")
                     }
+
+                    Interstitial(interstitialState)
                 } else {
-                    val adInterstitialState = viewModel.adInterstitialState
-                    if (adInterstitialState != null) {
-                        LaunchedEffect(adInterstitialState) {
-                            adInterstitialState.presentIfLoaded()
-                        }
-                        Interstitial(adInterstitialState)
+                    Button(onClick = { viewModel.onLoadAdvertisement() }) {
+                        Text("Load Advertisement")
                     }
                 }
             }
         }
 
         is InterstitialViewModel.PresentationState.Error -> {
-            val error = (state as InterstitialViewModel.PresentationState.Error).error
+            val error = presentationState.error
             Box(
                 modifier = Modifier
                     .fillMaxSize()
